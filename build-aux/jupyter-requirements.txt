@@ -13,3 +13,4 @@ fastparquet==0.7.1
 numpy<1.21,>=1.17
 matplotlib==3.4.3
 ipykernel==6.4.1
+six==1.14.0
