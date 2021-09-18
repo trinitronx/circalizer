@@ -4,8 +4,8 @@ COPY . /src/circalizer
 WORKDIR /src/circalizer
 
 RUN apk update \
-        && apk add bash build-base cmake autoconf g++ gcc make flex bison wget git tar
-RUN apk add shadow util-linux procps openrc openblas-dev lapack-dev libffi-dev \
+        && apk add --no-cache bash build-base cmake autoconf g++ gcc make flex bison wget git tar
+RUN apk add --no-cache shadow util-linux procps openrc openblas-dev lapack-dev libffi-dev \
             jpeg-dev zlib-dev freetype-dev lcms2-dev openjpeg-dev tiff-dev tk-dev \
             tcl-dev harfbuzz-dev fribidi-dev llvm11-dev \
             boost-dev libressl-dev
@@ -72,5 +72,14 @@ RUN mkdir /arrow \
 # Finally install the rest of python packages for the jupyter notebook
 RUN make jupyter-depends
 
+RUN adduser --disabled-password --home ${CONTAINER_SOURCE_PATH} jupyter && \
+    addgroup jupyter jupyter
+RUN cp -r  /root/.local /src/circalizer/ && \
+    chown -R jupyter:jupyter /src/circalizer/.local
+
+USER jupyter
+ENV PATH=/src/circalizer/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+EXPOSE 8888/tcp
 VOLUME ["/src/circalizer/code"]
 ENTRYPOINT ["/src/circalizer/bin/start_jupyter_notebook.sh"]
