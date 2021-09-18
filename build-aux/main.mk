@@ -155,6 +155,6 @@ clean:: ## Remove temporary / build files.
 	rm -f $(REPO_NAME).tar
 	rm -rf $(DOCKER_CONFIG)
 	rm -rf .deploy*
-	rm -rf .docker*
+	rm -rf .docker
 	rm -f .packaged
 	rm -f .shipped
