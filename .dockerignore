@@ -1,0 +1,14 @@
+*.o
+lib*.a
+*~
+config.*
+/tests/*.py[co]
+Dockerfile
+
+# Data files
+code/*
+data/*
+
+# Generated files
+generated
+_output/*
