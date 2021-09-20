@@ -69,17 +69,19 @@ RUN mkdir /arrow \
 # Finally install the rest of python packages for the jupyter notebook
 RUN make jupyter-depends
 
-COPY . /src/circalizer
-WORKDIR /src/circalizer
+ARG CONTAINER_SOURCE_PATH=${CONTAINER_SOURCE_PATH:-/src/circalizer}
+
+COPY . ${CONTAINER_SOURCE_PATH}
+WORKDIR ${CONTAINER_SOURCE_PATH}
 
 RUN adduser --disabled-password --home ${CONTAINER_SOURCE_PATH} jupyter && \
     addgroup jupyter jupyter
-RUN cp -r  /root/.local /src/circalizer/ && \
-    chown -R jupyter:jupyter /src/circalizer/.local
+RUN cp -r  /root/.local ${CONTAINER_SOURCE_PATH}/ && \
+    chown -R jupyter:jupyter ${CONTAINER_SOURCE_PATH}/.local
 
 USER jupyter
-ENV PATH=/src/circalizer/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ENV PATH=${CONTAINER_SOURCE_PATH}/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 EXPOSE 8888/tcp
-VOLUME ["/src/circalizer/code", "/src/circalizer/data"]
-ENTRYPOINT ["/src/circalizer/bin/start_jupyter_notebook.sh"]
+VOLUME ["${CONTAINER_SOURCE_PATH}/code", "${CONTAINER_SOURCE_PATH}/data"]
+ENTRYPOINT ["${CONTAINER_SOURCE_PATH}/bin/start_jupyter_notebook.sh"]
