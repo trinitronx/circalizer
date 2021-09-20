@@ -1,8 +1,5 @@
 FROM python:3-alpine3.14
 
-COPY . /src/circalizer
-WORKDIR /src/circalizer
-
 RUN apk update \
         && apk add --no-cache bash build-base cmake autoconf g++ gcc make flex bison wget git tar
 RUN apk add --no-cache shadow util-linux procps openrc openblas-dev lapack-dev libffi-dev \
@@ -72,6 +69,9 @@ RUN mkdir /arrow \
 # Finally install the rest of python packages for the jupyter notebook
 RUN make jupyter-depends
 
+COPY . /src/circalizer
+WORKDIR /src/circalizer
+
 RUN adduser --disabled-password --home ${CONTAINER_SOURCE_PATH} jupyter && \
     addgroup jupyter jupyter
 RUN cp -r  /root/.local /src/circalizer/ && \
@@ -81,5 +81,5 @@ USER jupyter
 ENV PATH=/src/circalizer/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 EXPOSE 8888/tcp
-VOLUME ["/src/circalizer/code"]
+VOLUME ["/src/circalizer/code", "/src/circalizer/data"]
 ENTRYPOINT ["/src/circalizer/bin/start_jupyter_notebook.sh"]
