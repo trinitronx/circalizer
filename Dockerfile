@@ -85,8 +85,8 @@ RUN cp -r  /root/.local ${CONTAINER_SOURCE_PATH}/ && \
 COPY . ${CONTAINER_SOURCE_PATH}
 
 USER jupyter
-ENV PATH=${CONTAINER_SOURCE_PATH}/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ENV PATH=${CONTAINER_SOURCE_PATH}/bin:${CONTAINER_SOURCE_PATH}/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 EXPOSE 8888/tcp
 VOLUME ["${CONTAINER_SOURCE_PATH}/code", "${CONTAINER_SOURCE_PATH}/data"]
-ENTRYPOINT ["${CONTAINER_SOURCE_PATH}/bin/start_jupyter_notebook.sh"]
+ENTRYPOINT ["start_jupyter_notebook.sh"]
