@@ -66,18 +66,23 @@ RUN mkdir /arrow \
     && python setup.py install \
     && rm -rf /arrow /tmp/apache-arrow.tar.gz
 
-# Finally install the rest of python packages for the jupyter notebook
-RUN make jupyter-depends
-
 ARG CONTAINER_SOURCE_PATH=${CONTAINER_SOURCE_PATH:-/src/circalizer}
 
-COPY . ${CONTAINER_SOURCE_PATH}
+COPY build-aux ${CONTAINER_SOURCE_PATH}/build-aux
+COPY Makefile ${CONTAINER_SOURCE_PATH}/
 WORKDIR ${CONTAINER_SOURCE_PATH}
+
+# Install the rest of python packages for the jupyter notebook
+RUN make jupyter-depends
+
 
 RUN adduser --disabled-password --home ${CONTAINER_SOURCE_PATH} jupyter && \
     addgroup jupyter jupyter
 RUN cp -r  /root/.local ${CONTAINER_SOURCE_PATH}/ && \
     chown -R jupyter:jupyter ${CONTAINER_SOURCE_PATH}/.local
+
+# Finally, copy the rest in and setup jupyter for run
+COPY . ${CONTAINER_SOURCE_PATH}
 
 USER jupyter
 ENV PATH=${CONTAINER_SOURCE_PATH}/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
