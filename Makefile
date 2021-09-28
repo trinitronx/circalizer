@@ -21,10 +21,10 @@ DISTCLEANFILES ?= $(top_srcdir)/dist/ $(top_srcdir)/MANIFEST \
 include $(top_srcdir)/build-aux/main.mk
 
 build-depends: ## Install python pip build dependencies
-	pip install --user -r ./build-aux/build-requirements.txt
+	pip install --no-warn-script-location --user -r ./build-aux/build-requirements.txt
 
 jupyter-depends: ## Install python pip Jupyter Notebook dependencies
-	pip install --user -r ./build-aux/jupyter-requirements.txt
+	pip install --no-warn-script-location --user -r ./build-aux/jupyter-requirements.txt
 
 virtualenv: ## Install python Jupyter Notebook into virtualenv
 	./bin/venv_jupyter_kernel.sh

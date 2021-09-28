@@ -76,22 +76,24 @@ RUN mkdir /arrow \
 ARG CONTAINER_SOURCE_PATH=${CONTAINER_SOURCE_PATH:-/src/circalizer}
 
 COPY build-aux ${CONTAINER_SOURCE_PATH}/build-aux
-COPY Makefile ${CONTAINER_SOURCE_PATH}/
+COPY Makefile VERSION .git ${CONTAINER_SOURCE_PATH}/
 WORKDIR ${CONTAINER_SOURCE_PATH}
-
-# Install the rest of python packages for the jupyter notebook
-RUN make jupyter-depends
-
 
 RUN adduser --disabled-password --home ${CONTAINER_SOURCE_PATH} jupyter && \
     addgroup jupyter jupyter
-RUN cp -r  /root/.local ${CONTAINER_SOURCE_PATH}/ && \
-    chown -R jupyter:jupyter ${CONTAINER_SOURCE_PATH}/.local
+RUN mv /root/.cargo ${CONTAINER_SOURCE_PATH}/.cargo && \
+    chown -R jupyter:jupyter ${CONTAINER_SOURCE_PATH}/.cargo && \
+    mv /root/.rustup ${CONTAINER_SOURCE_PATH}/.rustup && \
+    chown -R jupyter:jupyter ${CONTAINER_SOURCE_PATH}/.rustup
+
+USER jupyter
+# Install the rest of python packages for the jupyter notebook
+ENV PATH=${CONTAINER_SOURCE_PATH}/.cargo/bin:${PATH}
+RUN make jupyter-depends
 
 # Finally, copy the rest in and setup jupyter for run
 COPY . ${CONTAINER_SOURCE_PATH}
 
-USER jupyter
 ENV PATH=${CONTAINER_SOURCE_PATH}/bin:${CONTAINER_SOURCE_PATH}/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 ENV LD_LIBRARY_PATH=/usr/local/lib:${CONTAINER_SOURCE_PATH}/.local/lib
 ENV PYTHONPATH=/usr/local/lib/python3.9/site-packages:${CONTAINER_SOURCE_PATH}/.local/lib/python3.9/site-packages
