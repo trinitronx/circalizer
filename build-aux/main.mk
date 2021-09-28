@@ -99,10 +99,10 @@ $(DOCKER_CONFIG)/config.json:
 
 .packaged: ${PACKAGE_DEPENDENCIES}
 	if [ ! -z "$$($(DOCKER) images  $(REPO):$(DEPLOY_TAG))" ]; then                  \
-		$(DOCKER) build  $(DOCKER_BUILD_ARGS) -t $(REPO):$(DEPLOY_TAG) . ;           \
-		if [ -z "$(NOT_LATEST)" ]; then                                             \
-			$(DOCKER) tag "$(REPO):$(DEPLOY_TAG)" "$(REPO):latest";                  \
-		fi;                                                                          \
+	  $(DOCKER) build  $(DOCKER_BUILD_ARGS) -t $(REPO):$(DEPLOY_TAG) . ;             \
+	  if [ -z "$(NOT_LATEST)" ]; then                                                \
+	    $(DOCKER) tag "$(REPO):$(DEPLOY_TAG)" "$(REPO):latest";                      \
+	  fi;                                                                            \
 	fi
 	echo "$(DEPLOY_TAG)" > $@
 
