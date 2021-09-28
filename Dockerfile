@@ -90,7 +90,8 @@ RUN mv /root/.cargo ${CONTAINER_SOURCE_PATH}/.cargo && \
 USER jupyter
 # Install the rest of python packages for the jupyter notebook
 ENV PATH=${CONTAINER_SOURCE_PATH}/.cargo/bin:${PATH}
-RUN make jupyter-depends
+RUN --mount=type=cache,target=${CONTAINER_SOURCE_PATH}/.cache \
+    make jupyter-depends
 
 # Finally, copy the rest in and setup jupyter for run
 COPY . ${CONTAINER_SOURCE_PATH}
