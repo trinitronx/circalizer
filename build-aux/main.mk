@@ -53,6 +53,8 @@ JQ_DOCKER      ?= $(DOCKER) run --rm -i -u $(UID):$(GID) stedolan/jq
 CONTAINER_SOURCE_PATH  ?= /src/$(REPO_NAME)
 CONTAINER_SOURCE_FLAGS ?= -v $(PWD):$(CONTAINER_SOURCE_PATH) -w $(CONTAINER_SOURCE_PATH)
 
+DOCKER_BUILDKIT ?= 1
+
 ifdef TRAVIS_BUILD_NUMBER
 	DEPLOY_TAG ?= $(TRAVIS_BUILD_NUMBER)
 else
@@ -76,6 +78,7 @@ define output_tag_info
 	$(shell printf  'TRAVIS_BRANCH:              %s'  '$(TRAVIS_BRANCH)')
 	$(shell printf  'TRAVIS_PULL_REQUEST:        %s'  '$(TRAVIS_PULL_REQUEST)')
 	$(shell printf  'TRAVIS_PULL_REQUEST_BRANCH: %s'  '$(TRAVIS_PULL_REQUEST_BRANCH)')
+	$(shell printf  'DOCKER_BUILDKIT:            %s'  '$(DOCKER_BUILDKIT)')
 	$(shell printf  'NOT_LATEST:                 %s'  '$(NOT_LATEST)')
 	$(shell printf  'REGISTRY:                   %s'  '$(REGISTRY)')
 	$(shell printf  'REPO_NAME:                  %s'  '$(REPO_NAME)')
