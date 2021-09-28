@@ -28,7 +28,7 @@ ENV ARROW_HOME=/usr/local \
 
 # Install pyarrow
 # Source: https://gist.github.com/bskaggs/fc3c8d0d553be54e2645616236fdc8c6
-RUN pip3 install --no-cache-dir six pytest numpy cython
+RUN pip3 install --no-cache-dir six pytest 'numpy<1.21,>=1.17' cython
 RUN pip3 install --no-cache-dir pandas
 
 
@@ -76,7 +76,8 @@ RUN mkdir /arrow \
 ARG CONTAINER_SOURCE_PATH=${CONTAINER_SOURCE_PATH:-/src/circalizer}
 
 COPY build-aux ${CONTAINER_SOURCE_PATH}/build-aux
-COPY Makefile VERSION .git ${CONTAINER_SOURCE_PATH}/
+COPY .git ${CONTAINER_SOURCE_PATH}/.git
+COPY Makefile VERSION ${CONTAINER_SOURCE_PATH}/
 WORKDIR ${CONTAINER_SOURCE_PATH}
 
 RUN adduser --disabled-password --home ${CONTAINER_SOURCE_PATH} jupyter && \
@@ -96,7 +97,7 @@ COPY . ${CONTAINER_SOURCE_PATH}
 
 ENV PATH=${CONTAINER_SOURCE_PATH}/bin:${CONTAINER_SOURCE_PATH}/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 ENV LD_LIBRARY_PATH=/usr/local/lib:${CONTAINER_SOURCE_PATH}/.local/lib
-ENV PYTHONPATH=/usr/local/lib/python3.9/site-packages:${CONTAINER_SOURCE_PATH}/.local/lib/python3.9/site-packages
+ENV PYTHONPATH=${CONTAINER_SOURCE_PATH}/.local/lib/python3.9/site-packages:/usr/local/lib/python3.9/site-packages
 
 EXPOSE 8888/tcp
 VOLUME ["${CONTAINER_SOURCE_PATH}/code", "${CONTAINER_SOURCE_PATH}/data"]
