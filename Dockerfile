@@ -4,7 +4,8 @@ RUN apk update \
         && apk add --no-cache bash build-base cmake autoconf g++ gcc make flex bison wget git tar
 RUN apk add --no-cache shadow util-linux procps openrc openblas-dev lapack-dev libffi-dev \
             jpeg-dev zlib-dev freetype-dev lcms2-dev openjpeg-dev tiff-dev tk-dev \
-            tcl-dev harfbuzz-dev fribidi-dev llvm11-dev \
+            tcl-dev harfbuzz-dev fribidi-dev llvm11-dev libbz2 \
+            brotli-dev lz4-dev snappy-dev zstd-dev utf8proc-dev re2-dev rapidjson-dev \
             boost-dev libressl-dev
 
 RUN pip3 install --upgrade pip
@@ -49,12 +50,14 @@ RUN mkdir /arrow \
         -DOPENSSL_ROOT_DIR=/usr/local/ssl \
         -DCMAKE_INSTALL_LIBDIR=lib \
         -DCMAKE_INSTALL_PREFIX=$ARROW_HOME \
+        -DARROW_WITH_BROTLI=ON \
         -DARROW_WITH_BZ2=ON \
         -DARROW_WITH_ZLIB=ON \
         -DARROW_WITH_ZSTD=ON \
         -DARROW_WITH_LZ4=ON \
         -DARROW_WITH_SNAPPY=ON \
         -DARROW_PARQUET=ON \
+        -DARROW_DATASET=ON \
         -DARROW_PYTHON=ON \
         -DARROW_PLASMA=ON \
         -DARROW_BUILD_TESTS=OFF \
@@ -62,7 +65,11 @@ RUN mkdir /arrow \
     && make -j$(nproc) \
     && make install \
     && cd /arrow/python \
-    && python setup.py build_ext --build-type=$ARROW_BUILD_TYPE --with-parquet \
+    && python setup.py build_ext --build-type=$ARROW_BUILD_TYPE \
+         --with-parquet --with-dataset \
+         --with-plasma --bundle-cython-cpp \
+         --bundle-arrow-cpp --bundle-arrow-cpp-headers \
+         --bundle-plasma-executable \
     && python setup.py install \
     && rm -rf /arrow /tmp/apache-arrow.tar.gz
 
@@ -86,6 +93,8 @@ COPY . ${CONTAINER_SOURCE_PATH}
 
 USER jupyter
 ENV PATH=${CONTAINER_SOURCE_PATH}/bin:${CONTAINER_SOURCE_PATH}/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ENV LD_LIBRARY_PATH=/usr/local/lib:${CONTAINER_SOURCE_PATH}/.local/lib
+ENV PYTHONPATH=/usr/local/lib/python3.9/site-packages:${CONTAINER_SOURCE_PATH}/.local/lib/python3.9/site-packages
 
 EXPOSE 8888/tcp
 VOLUME ["${CONTAINER_SOURCE_PATH}/code", "${CONTAINER_SOURCE_PATH}/data"]
