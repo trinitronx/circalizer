@@ -50,6 +50,13 @@ $(shell find $(DOCKER_CONFIG) -mmin +720 -exec rm -f '{}' \; 2>/dev/null)
 DOCKER         ?= docker --config $(DOCKER_CONFIG)
 JQ_DOCKER      ?= $(DOCKER) run --rm -i -u $(UID):$(GID) stedolan/jq
 
+INSIDE_DOCKER := $(shell [ -f /.dockerenv ] && echo 1 || echo 0)
+ifeq (1,$(INSIDE_DOCKER))
+	GIT_TAG_CMD := echo -n ''
+else
+	GIT_TAG_CMD := echo -n '-' && git rev-parse --short HEAD
+endif
+
 CONTAINER_SOURCE_PATH  ?= /src/$(REPO_NAME)
 CONTAINER_SOURCE_FLAGS ?= -v $(PWD):$(CONTAINER_SOURCE_PATH) -w $(CONTAINER_SOURCE_PATH)
 
@@ -60,7 +67,7 @@ DOCKER_BUILD_ARGS ?= --build-arg=BUILDKIT_CONTEXT_KEEP_GIT_DIR=$(BUILDKIT_CONTEX
 ifdef TRAVIS_BUILD_NUMBER
 	DEPLOY_TAG ?= $(TRAVIS_BUILD_NUMBER)
 else
-	DEPLOY_TAG ?= $(shell TZ=UTC date +'%Y%m%dT%H%M%S')-$(shell git rev-parse --short HEAD)
+	DEPLOY_TAG ?= $(shell TZ=UTC date +'%Y%m%dT%H%M%S')$(shell $(GIT_TAG_CMD))
 endif
 
 
@@ -80,6 +87,7 @@ define output_tag_info
 	$(shell printf  'TRAVIS_BRANCH:              %s'  '$(TRAVIS_BRANCH)')
 	$(shell printf  'TRAVIS_PULL_REQUEST:        %s'  '$(TRAVIS_PULL_REQUEST)')
 	$(shell printf  'TRAVIS_PULL_REQUEST_BRANCH: %s'  '$(TRAVIS_PULL_REQUEST_BRANCH)')
+	$(shell printf  'INSIDE_DOCKER:              %s'  '$(INSIDE_DOCKER)')
 	$(shell printf  'DOCKER_BUILDKIT:            %s'  '$(DOCKER_BUILDKIT)')
 	$(shell printf  'NOT_LATEST:                 %s'  '$(NOT_LATEST)')
 	$(shell printf  'REGISTRY:                   %s'  '$(REGISTRY)')
