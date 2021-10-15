@@ -51,6 +51,14 @@ install: ## Runs python setup.py install
 #test: ## Runs tests
 #	python nose
 
+docker-run: .packaged ## Runs the docker container built during package
+	$(eval DEPLOY_TAG := $(shell cat .packaged))
+	$(DOCKER) run --rm -d                                      \
+		-v $(realpath $(top_srcdir)/code):/src/circalizer/code \
+		-v $(realpath $(top_srcdir)/data):/src/circalizer/data \
+		-p 8888:8888                                           \
+		$(REPO):$(DEPLOY_TAG)
+
 .PHONY: CHANGELOG
 CHANGELOG: CHANGELOG.md ## Generate CHANGELOG.md from git-chglog
 git-version.stamp: .git/$(git_current) ## no-help
